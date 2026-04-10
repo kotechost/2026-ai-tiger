@@ -17,18 +17,18 @@
 ---
 
 ## 🧱 구성
-* RAG API: [작성]
-* LLM: [작성] (ex. EXAONE / Ollama)
-* Vector DB: [작성]
-* DB: [작성] (ex. PostgreSQL)
-* UI: [작성] (ex. OpenWebUI)
+* RAG API: FastAPI (/v1/bibleInfo, /v1/bibleCrawl, /v1/bibleCrawlFromJs)
+* LLM: Qwen (qwen2.5:7b) / EXAONE-4.0-32B (환경변수로 선택)
+* Vector DB: FAISS
+* DB: PostgreSQL (bible_service)
+* UI: OpenWebUI
 
 ---
 
 ## 🛠 기술 스택
-* Backend: [작성]
-* AI: [작성]
-* DB: [작성]
+* Backend: FastAPI (Python)
+* AI: vLLM / Ollama / Qwen / EXAONE
+* DB: PostgreSQL
 * Infra: Docker / Docker Compose
 
 ---
@@ -37,14 +37,16 @@
 ```bash
 docker-compose up -d   # 실행
 docker-compose down    # 종료
+
+start.sh               # 빌드 및 재시작
 ```
 
 ---
 
 ## 🌐 접속 정보
-* UI: [작성]
-* API: [작성]
-* 기타: [작성]
+* UI: http://<서버IP>:3002
+* API: http://<서버IP>:8002
+* API Docs (Swagger): http://<서버IP>:8002/docs
 
 ---
 
@@ -57,14 +59,45 @@ docker-compose down    # 종료
 
 ## ⚙️ 환경 변수
 ```
-[.env 내용 작성]
+.env 파일
+
+# PostgreSQL 접속 정보
+DB_HOST=host.docker.internal
+DB_PORT=5432
+DB_NAME=bible
+DB_SCHEMA=bible_service
+DB_USER=solihost
+DB_PASSWORD=soli1234!
+
+# 디버그 모드 (1=ON: 일부 책만 수집, 0=OFF: 전체 수집)
+BIBLE_DEBUG=1
+BIBLE_DEBUG_LIMIT=2
 ```
 
 ---
 
 ## 🤖 모델
 ```
-[모델 다운로드 / 실행 방법 작성]
+## qwen2.5:7b
+
+다운로드
+ollama pull qwen2.5:7b
+
+ollama 기본 포트 : 11434
+
+## EXAONE-4.0-32B
+
+다운로드
+hf download LGAI-EXAONE/EXAONE-4.0-32B-FP8 \
+  --local-dir /mnt/hdd22t2/solihost/exaone_models/EXAONE-4.0-32B-FP8 \
+  --token hf_your_token_here
+
+vLLM 기본 포트 : 8001
+
+vLLM을 호스트에서 별도 실행 후 사용합니다. 모델 파일은 /mnt/hdd22t2/solihost/exaone_models 에 위치해야 합니다. (위치 변경필요?)
+
+
+docker-compose.yml의 MODEL_BACKEND 주석을 해제하여 전환합니다.
 ```
 
 ---
