@@ -52,7 +52,30 @@ start.sh               # 빌드 및 재시작
 
 ## 📂 디렉토리 구조
 ```
-[프로젝트 구조 작성]
+llm-system-bsk/
+├── open-webui/                # Open-WebUI 채팅 UI (SvelteKit + Python 백엔드)
+│   ├── backend/               # Python 백엔드 (FastAPI 기반 Open-WebUI 서버)
+│   ├── src/                   # SvelteKit 프론트엔드 소스
+│   ├── static/                # 정적 파일 (이미지, 폰트, 테마 등)
+│   ├── cypress/               # E2E 테스트
+│   ├── docs/                  # 문서
+│   ├── scripts/               # 빌드/유틸 스크립트
+│   ├── test/                  # 단위 테스트
+│   └── pdfs/                  # PDF 샘플 파일
+│
+├── rag-server/                # 커스텀 RAG 서버 (FastAPI)
+│   ├── api/                   # API 라우터 (성경 크롤링/정보/벡터 엔드포인트)
+│   ├── crawler/               # 웹 크롤러
+│   ├── data/                  # 크롤링/처리 데이터
+│   ├── db/                    # DB 쿼리 레이어 (PostgreSQL)
+│   ├── pdfs/                  # PDF 업로드/처리 디렉터리
+│   └── rag/                   # RAG 핵심 로직 (임베딩, 검색, 벡터 DB)
+│
+├── postgres/                  # PostgreSQL 설정
+│   ├── init/                  # DB 초기화 SQL 스크립트
+│   └── data/                  # DB 데이터 (볼륨 마운트)
+│
+└── vector-data/               # 벡터 처리 로그/데이터
 ```
 
 ---
