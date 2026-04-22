@@ -1,0 +1,31 @@
+# 백업
+open-webui_backup/
+*.back
+
+# 데이터 (용량 큼)
+vector-data/
+rag-server/data/
+rag-server/pdfs/*
+!rag-server/pdfs/.gitkeep
+rag-server/result_data/
+open-webui/pdfs/
+
+# Python 캐시
+__pycache__/
+*.pyc
+
+# 환경/민감 정보
+.env
+*.env
+
+# OS / IDE
+.DS_Store
+.vscode/
+.idea/
+
+# Claude
+CLAUDE.md
+.claude/
+
+# postgre
+postgres

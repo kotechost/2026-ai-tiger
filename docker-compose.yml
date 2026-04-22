@@ -1,0 +1,63 @@
+version: "3.9"
+
+services:
+
+  rag-api-jsy:
+    build: ./rag-server
+    image: rag-api-jsy:latest
+
+    ports:
+      - "8002:8000"
+
+    volumes:
+      - ./vector-data:/data
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           device_ids: ["3"]
+    #           capabilities: [gpu]
+
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+
+  openwebui-jsy:
+    build:
+      context: ./open-webui
+      dockerfile: Dockerfile
+
+    image: opnwebui-jsy:latest
+
+    ports:
+      - "3002:8080"
+
+    environment:
+      - OPENAI_API_BASE_URL=http://rag-api-jsy:8000/v1
+      - OPENAI_API_KEY=test
+      - WEBUI_AUTH=False
+
+    volumes:
+      - openwebui-data-jsy:/app/backend/data
+      - ./open-webui/pdfs:/app/backend/open_webui/static/pdf:ro
+    depends_on:
+      - rag-api-jsy
+
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+volumes:
+  openwebui-data-jsy:
