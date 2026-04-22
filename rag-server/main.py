@@ -19,7 +19,6 @@ from rag.rewrite_query import rewrite_query
 
 # RAG 관련 모듈
 from rag.search import search_context, match_source, parse_title, get_surrounding_docs, get_source_url, build_doc_sources
-from rag.crawl_to_vector import crawl_and_store
 from rag.gpu_monitor import GpuMonitor
 
 # 전역 상태

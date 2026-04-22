@@ -80,25 +80,22 @@ llm-system-bsk/
 │   ├── crawler/               # 웹 크롤러
 │   ├── db/                    # DB 쿼리 레이어 (PostgreSQL)
 │   │   ├── config/                  # DB pool 설정
+│   │   └── bible_crawl_query.py    # 크롤링 성경정보 저장 
+│   │   └── bible_info_query.py     # 크롤링 성경정보 대상(Target) 저장
 │   │   └── bible_vector_query.py    # 성경 집계 쿼리
 │   ├── pdfs/                  # PDF 원본 (정적 마운트 /pdfs)
 │   ├── rag/                   # RAG 핵심 로직
 │   │   ├── embedding.py             # 임베딩 생성
 │   │   ├── chunk.py                 # 텍스트 청킹
 │   │   ├── pdf_parser.py            # PDF 파싱 (fitz / VL OCR)
-│   │   ├── ocr_postprocess.py       # OCR 후처리
 │   │   ├── document_to_vector.py    # PDF 벡터 저장
-│   │   ├── crawl_to_vector.py       # 크롤링 결과 벡터 저장
 │   │   ├── vector_db.py             # 성경 FAISS 인덱스
 │   │   ├── vector_db_stitle.py      # 성경 소제목 FAISS 인덱스
 │   │   ├── vector_db_doc.py         # PDF 문서 FAISS 인덱스
 │   │   ├── search.py                # RAG 검색 + rerank + 출처 매칭
 │   │   ├── search_doc.py            # 문서 전용 검색
-│   │   ├── search_logger.py         # 검색 디버그 로그
 │   │   ├── rewrite_query.py         # LLM 기반 질문 재작성
-│   │   ├── gpu_monitor.py           # GPU 사용률 수집
-│   │   ├── run_local_pdf.py         # 로컬 PDF 일괄 처리
-│   │   └── eval_*.py                # 검색/파싱 평가 스크립트
+│   │   └── gpu_monitor.py           # GPU 사용률 수집
 │   ├── main.py                # FastAPI 엔트리포인트
 │   ├── Dockerfile
 │   └── requirements.txt

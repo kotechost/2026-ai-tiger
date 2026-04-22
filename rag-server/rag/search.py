@@ -12,8 +12,6 @@ from urllib.parse import quote
 
 rerankModel = CrossEncoder("BAAI/bge-reranker-v2-m3", device="cuda")
 
-DEBUG_SEARCH_LOG = True
-
 def get_source_url(docObj):
     """DB 종류에 따라 출처 URL 생성"""
     source_type = docObj.get("source_type", "")
@@ -212,10 +210,6 @@ def search_context(queryStr):
 	print("최종 선택 문서 개수:", len(topDocs), flush=True)
 
 	print("===== RAG 검색 종료 =====", flush=True)
-
-	if DEBUG_SEARCH_LOG:
-		from rag.search_logger import log_search
-		log_search(queryStr, queryVec, distances, indices, candidateList, topScored, topDocs, rerankList)
 
 	return contextText, topDocs, topScored
 
