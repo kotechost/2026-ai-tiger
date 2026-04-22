@@ -30,21 +30,28 @@ else:
 	print("새 VectorDB 생성", flush=True)
 
 
-def add_vector(vectorArr, textStr, urlStr, titleStr):
+def add_vector(vectorArr, textStr, urlStr, titleStr, smallTitleStr=""):
 
-	vectorArr = np.array(vectorArr).astype("float32")
+    vectorArr = np.array(vectorArr).astype("float32")
+    docId = len(docsList)
+    indexObj.add_with_ids(vectorArr, np.array([docId]))
 
-	docId = len(docsList)
+    docsList.append({
+        "text":        textStr,
+        "url":         urlStr,
+        "title":       titleStr,
+        "small_title": smallTitleStr
+    })
 
-	indexObj.add_with_ids(vectorArr, np.array([docId]))
+    print("Vector 저장:", len(docsList), flush=True)
 
-	docsList.append({
-		"text": textStr,
-		"url": urlStr,
-		"title": titleStr
-	})
 
-	print("Vector 저장:", len(docsList), flush=True)
+def add_vectors_batch(vectorsArr, docDictList):
+    startId = len(docsList)
+    ids = np.arange(startId, startId + len(docDictList))
+    indexObj.add_with_ids(vectorsArr, ids)
+    docsList.extend(docDictList)
+    print(f"Vector 배치 저장: {len(docsList)}건", flush=True)
 
 
 def save_index():
@@ -56,3 +63,18 @@ def save_index():
 		pickle.dump(docsList, fileObj)
 
 	print("VectorDB 저장 완료", flush=True)
+
+
+def reset_index():
+    global indexObj, docsList
+    if os.path.exists(indexFile):
+        os.remove(indexFile)
+    if os.path.exists(docsFile):
+        os.remove(docsFile)
+		
+    baseIndex = faiss.IndexFlatIP(dimensionNum)
+    indexObj = faiss.IndexIDMap(baseIndex)
+    docsList = []
+    print("VectorDB 초기화 완료", flush=True)
+
+

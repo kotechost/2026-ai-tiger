@@ -1,4 +1,4 @@
-docker compose -p llm-system-jsy down
-docker compose -p llm-system-jsy build openwebui-jsy
-docker compose -p llm-system-jsy up -d
-docker logs -f llm-system-jsy-rag-api-jsy-1
+docker compose down
+docker compose build openwebui-bsk
+docker compose up -d
+docker logs -f rag-api-bsk

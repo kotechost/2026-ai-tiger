@@ -1,67 +1,36 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import { toast } from 'svelte-sonner';
-
 	import {
-		WEBUI_NAME,
-		banners,
-		chatId,
-		config,
-		mobile,
-		settings,
-		showArchivedChats,
-		showControls,
-		showSidebar,
-		temporaryChatEnabled,
-		user
+		chatId
 	} from '$lib/stores';
-
-	import { slide } from 'svelte/transition';
-	import { page } from '$app/stores';
-	import { goto } from '$app/navigation';
-
+	import { get } from 'svelte/store';
+	import { showSidebar } from '$lib/stores';
+	import { onMount } from 'svelte';
 	import ShareChatModal from '../chat/ShareChatModal.svelte';
-	import ModelSelector from '../chat/ModelSelector.svelte';
 	import Tooltip from '../common/Tooltip.svelte';
-	import Menu from '$lib/components/layout/Navbar/Menu.svelte';
-	import UserMenu from '$lib/components/layout/Sidebar/UserMenu.svelte';
-	import AdjustmentsHorizontal from '../icons/AdjustmentsHorizontal.svelte';
-
-	import PencilSquare from '../icons/PencilSquare.svelte';
-	import Banner from '../common/Banner.svelte';
-	import Sidebar from '../icons/Sidebar.svelte';
-
-	import ChatBubbleDotted from '../icons/ChatBubbleDotted.svelte';
-	import ChatBubbleDottedChecked from '../icons/ChatBubbleDottedChecked.svelte';
-
-	import EllipsisHorizontal from '../icons/EllipsisHorizontal.svelte';
-	import ChatPlus from '../icons/ChatPlus.svelte';
-	import ChatCheck from '../icons/ChatCheck.svelte';
-	import Knobs from '../icons/Knobs.svelte';
-	import { WEBUI_API_BASE_URL } from '$lib/constants';
 
 	const i18n = getContext('i18n');
-
+	
 	export let initNewChat: Function;
-	export let shareEnabled: boolean = false;
-	export let scrollTop = 0;
-
-	export let chat;
-	export let history;
 	export let selectedModels;
-	export let showModelSelector = true;
+	export let params: { think?: boolean | string | null; [key: string]: any } = {};
+	// let showShareChatModal = false;
+	// onMount(() => {
+	// 	selectedModels.set(['rag-qwen']);
+	// });
 
-	export let onSaveTempChat: () => {};
-	export let archiveChatHandler: (id: string) => void;
-	export let moveChatHandler: (id: string, folderId: string) => void;
+	const toggleThinking = () => {
+		const current = params?.think ?? null;
+		const next = current === true ? false : true;
 
-	let closedBannerIds = [];
-
-	let showShareChatModal = false;
-	let showDownloadChatModal = false;
+		// bind된 parent(Chat.svelte) params까지 반영되도록 재할당
+		params = {
+			...params,
+			think: next
+		};
+	};
 </script>
-
-<ShareChatModal bind:show={showShareChatModal} chatId={$chatId} />
+<!-- <ShareChatModal bind:show={showShareChatModal} chatId={$chatId} /> -->
 
 <button
 	id="new-chat-button"
@@ -72,336 +41,315 @@
 	aria-label="New Chat"
 />
 
-<nav class="sidebar {$showSidebar ? 'show-sidebar' : 'hide-sidebar'}">
-	<div class="flex items-center w-full pl-1.5 pr-1">
-		<div
-			id="navbar-bg-gradient-to-b"
-			class="{chat?.id
-				? 'visible'
-				: 'invisible'} bg-linear-to-b via-40% to-97% from-white/90 via-white/50 to-transparent dark:from-gray-900/90 dark:via-gray-900/50 dark:to-transparent pointer-events-none absolute inset-0 -bottom-10 z-[-1]"
-		></div>
+<nav class="sidebar {$showSidebar ? 'show-sidebar' : ''}">
+	<div class="sidebar-main">
 
-		<div class=" flex max-w-full w-full mx-auto px-1.5 md:px-2 pt-0.5 bg-transparent">
-			<div class="flex items-center w-full max-w-full">
-				{#if $mobile && !$showSidebar}
-					<div
-						class="-translate-x-0.5 mr-1 mt-1 self-start flex flex-none items-center text-gray-600 dark:text-gray-400"
-					>
-						<Tooltip content={$showSidebar ? $i18n.t('Close Sidebar') : $i18n.t('Open Sidebar')}>
-							<button
-								class=" cursor-pointer flex rounded-lg hover:bg-gray-100 dark:hover:bg-gray-850 transition"
-								on:click={() => {
-									showSidebar.set(!$showSidebar);
-								}}
-							>
-								<div class=" self-center p-1.5">
-									<Sidebar />
-								</div>
-							</button>
-						</Tooltip>
-					</div>
-				{/if}
+		<!-- TOP -->
+		<div class="sidebar-section top">
+			<div class="ai-title">
+				<span class="title-icon">🎓</span>
+				<span>감리교신학대학교 AI</span>
+			</div>
 
-				<div class="flex-1 overflow-hidden max-w-full mt-0.5 py-0.5 {$showSidebar ? 'ml-1' : ''}">
+			<div class="badge">감리교신학대학교 AI</div>
+		</div>
 
-				<div class="flex-1 max-w-full mt-0.5 py-0.5 relative z-[60] {$showSidebar ? 'ml-1' : ''}">
-					<div class="logo">
-						<img src="/logo.png" alt="logo"/>
-					</div>
-													
-					{#if showModelSelector}
-						<div class="relative">
-							<ModelSelector bind:selectedModels showSetDefault={true} />
-						</div>
-					{/if}
+		<!-- MIDDLE -->
+		<div class="sidebar-section middle">
+			<div class="engine-box">
+
+				<div class="engine-title">AI ENGINE</div>
+
+				<div class="engine-meta">
+					다양한 질의에 즉시<br/>응답하는 AI 플랫폼입니다.
 				</div>
 
-				<div class="self-start flex flex-none items-center text-gray-600 dark:text-gray-400 hide-navbar-icons">
-					<!-- <div class="md:hidden flex self-center w-[1px] h-5 mx-2 bg-gray-300 dark:bg-stone-700" /> -->
-
-					{#if $user?.role === 'user' ? ($user?.permissions?.chat?.temporary ?? true) && !($user?.permissions?.chat?.temporary_enforced ?? false) : true}
-						{#if !chat?.id}
-							<Tooltip content={$i18n.t(`Temporary Chat`)}>
-								<button
-									class="flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-									id="temporary-chat-button"
-									on:click={async () => {
-										if (($settings?.temporaryChatByDefault ?? false) && $temporaryChatEnabled) {
-											// for proper initNewChat handling
-											await temporaryChatEnabled.set(null);
-										} else {
-											await temporaryChatEnabled.set(!$temporaryChatEnabled);
-										}
-
-										if ($page.url.pathname !== '/') {
-											await goto('/');
-										}
-
-										// add 'temporary-chat=true' to the URL
-										if ($temporaryChatEnabled) {
-											window.history.replaceState(null, '', '?temporary-chat=true');
-										} else {
-											window.history.replaceState(null, '', location.pathname);
-										}
-									}}
-								>
-									<div class=" m-auto self-center">
-										{#if $temporaryChatEnabled}
-											<ChatBubbleDottedChecked className=" size-4.5" strokeWidth="1.5" />
-										{:else}
-											<ChatBubbleDotted className=" size-4.5" strokeWidth="1.5" />
-										{/if}
-									</div>
-								</button>
-							</Tooltip>
-						{:else if $temporaryChatEnabled}
-							<Tooltip content={$i18n.t(`Save Chat`)}>
-								<button
-									class="flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-									id="save-temporary-chat-button"
-									on:click={async () => {
-										onSaveTempChat();
-									}}
-								>
-									<div class=" m-auto self-center">
-										<ChatCheck className=" size-4.5" strokeWidth="1.5" />
-									</div>
-								</button>
-							</Tooltip>
-						{/if}
-					{/if}
-
-					{#if $mobile && !$temporaryChatEnabled && chat && chat.id}
-						<Tooltip content={$i18n.t('New Chat')}>
-							<button
-								class=" flex {$showSidebar
-									? 'md:hidden'
-									: ''} cursor-pointer px-2 py-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-								on:click={() => {
-									initNewChat();
-								}}
-								aria-label="New Chat"
-							>
-								<div class=" m-auto self-center">
-									<ChatPlus className=" size-4.5" strokeWidth="1.5" />
-								</div>
-							</button>
-						</Tooltip>
-					{/if}
-
-					{#if shareEnabled && chat && (chat.id || $temporaryChatEnabled)}
-						<Menu
-							{chat}
-							{shareEnabled}
-							shareHandler={() => {
-								showShareChatModal = !showShareChatModal;
-							}}
-							archiveChatHandler={() => {
-								archiveChatHandler(chat.id);
-							}}
-							{moveChatHandler}
-						>
-							<button
-								class="flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-								id="chat-context-menu-button"
-							>
-								<div class=" m-auto self-center">
-									<EllipsisHorizontal className=" size-5" strokeWidth="1.5" />
-								</div>
-							</button>
-						</Menu>
-					{/if}
-
-					{#if $user?.role === 'admin' || ($user?.permissions.chat?.controls ?? true)}
-						<Tooltip content={$i18n.t('Controls')}>
-							<button
-								class=" flex cursor-pointer px-2 py-2 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-								on:click={async () => {
-									await showControls.set(!$showControls);
-								}}
-								aria-label="Controls"
-							>
-								<div class=" m-auto self-center">
-									<Knobs className=" size-5" strokeWidth="1" />
-								</div>
-							</button>
-						</Tooltip>
-					{/if}
-
-					{#if $user !== undefined && $user !== null}
-						<UserMenu
-							className="max-w-[240px]"
-							role={$user?.role}
-							help={true}
-							on:show={(e) => {
-								if (e.detail === 'archived-chat') {
-									showArchivedChats.set(true);
-								}
-							}}
-						>
-							<div
-								class="select-none flex rounded-xl p-1.5 w-full hover:bg-gray-50 dark:hover:bg-gray-850 transition"
-							>
-								<div class=" self-center">
-									<span class="sr-only">{$i18n.t('User menu')}</span>
-									<img
-										src={`${WEBUI_API_BASE_URL}/users/${$user?.id}/profile/image`}
-										class="size-6 object-cover rounded-full"
-										alt=""
-										draggable="false"
-									/>
-								</div>
-							</div>
-						</UserMenu>
-					{/if}
+				<div class="engine-meta sub">
+					KOTECH의 <br/> RAG 서버 기술을 통해<br/>
+					정확성과 신뢰성을 동시에 확보한 <br/>AI 서비스를 제공합니다.
 				</div>
+
 			</div>
 		</div>
+
 	</div>
 
-	{#if $temporaryChatEnabled && ($chatId ?? '').startsWith('local:')}
-		<div class=" w-full z-30 text-center">
-			<div class="text-xs text-gray-500">{$i18n.t('Temporary Chat')}</div>
-		</div>
-	{/if}
-	<!--	
-	<div class="absolute top-[100%] left-0 right-0 h-fit">
-	
-		{#if !history.currentId && !$chatId && ($banners.length > 0 || ($config?.license_metadata?.type ?? null) === 'trial' || (($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats))}
-			<div class=" w-full z-30">
-				<div class=" flex flex-col gap-1 w-full">
-					{#if ($config?.license_metadata?.type ?? null) === 'trial'}
-						<Banner
-							banner={{
-								type: 'info',
-								title: 'Trial License',
-								content: $i18n.t(
-									'You are currently using a trial license. Please contact support to upgrade your license.'
-								)
-							}}
-						/>
-					{/if}
-
-					{#if ($config?.license_metadata?.seats ?? null) !== null && $config?.user_count > $config?.license_metadata?.seats}
-						<Banner
-							banner={{
-								type: 'error',
-								title: 'License Error',
-								content: $i18n.t(
-									'Exceeded the number of seats in your license. Please contact support to increase the number of seats.'
-								)
-							}}
-						/>
-					{/if}
-					
-					{#each $banners.filter((b) => ![...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]'), ...closedBannerIds].includes(b.id)) as banner (banner.id)}
-						<Banner
-							{banner}
-							on:dismiss={(e) => {
-								const bannerId = e.detail;
-
-								if (banner.dismissible) {
-									localStorage.setItem(
-										'dismissedBannerIds',
-										JSON.stringify(
-											[
-												bannerId,
-												...JSON.parse(localStorage.getItem('dismissedBannerIds') ?? '[]')
-											].filter((id) => $banners.find((b) => b.id === id))
-										)
-									);
-								} else {
-									closedBannerIds = [...closedBannerIds, bannerId];
-								}
-							}}
-						/>
-					{/each}
-						
-				</div>
+	<!-- BOTTOM -->
+	<div class="sidebar-section bottom">
+		<div class="bottom-content">
+			<Tooltip content={$i18n.t('Thinking')}>
+				<button
+					class="think-toggle"
+					on:click={toggleThinking}
+					aria-label="Thinking Toggle"
+				>
+					{params?.think === true ? 'TH ON' : 'TH OFF'}
+				</button>
+			</Tooltip>
+			<div class="data-source">
+				성경 기반
 			</div>
-		{/if}
+
+			<p class="collab-text">
+				<span class="exaone">LLM</span> 기반 지능형 AI<br/>
+				<span class="sub">Powered by KOTECH RAG Engine</span>
+			</p>
+		</div>
 	</div>
-	-->	
 </nav>
 
 <style>
 
-	.logo{
-		display:flex;
-		justify-content:center;
-		margin-bottom:20px;
+/* =========================
+   SIDEBAR 기본 구조
+========================= */
+.sidebar {
+    width: 260px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    background: #f9fafb;
+    border-right: 1px solid #e5e7eb;
+
+    /* 좌우 패딩을 동일하게 맞추어 내부 콘텐츠가 쏠리지 않게 합니다 */
+    padding: 40px 0; 
+    
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* 가로축 중앙 정렬 추가 */
+    z-index: 50;
+    transition: transform 0.3s ease;
+}
+
+/* =========================
+   본문 밀기 (핵심 ⭐)
+========================= */
+:global(body) {
+	transition: padding-left 0.3s ease;
+}
+
+@media (min-width: 1025px) {
+	:global(body) {
+		padding-left: 260px;
 	}
+}
 
-	.logo img{
-		width:160px;
-	}
 
-	.sidebar{
-		width:260px;
-		height:100vh;
-
-		position:fixed;
-		left:0;
-		top:0;
-
-		background:#f9fafb;
-
-		border-right:1px solid #e5e7eb;
-
-		padding:20px;
-
-		display:flex;
-		flex-direction:column;
-		align-items:flex-start;
-
-		z-index:40;
-	}
-
-	.hide-navbar-icons{
-		display:none;
-	}
-
+/* =========================
+   모바일
+========================= */
+@media (max-width: 1024px) {
 	.sidebar {
-        width: 260px;
-        height: 100vh;
-        position: fixed;
-        left: 0;
-        top: 0;
-        background: #f9fafb;
-        border-right: 1px solid #e5e7eb;
-        padding: 20px;
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        z-index: 50;
-        overflow: visible !important; 
-        
-        /* [추가] 부드러운 여닫기 애니메이션 */
-        transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    }
+		transform: translateX(-100%);
+		box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+	}
 
-    /* 화면이 작아질 때 (태블릿/모바일) 사이드바 숨기기 */
-    @media (max-width: 1024px) {
-        .sidebar {
-            /* 기본적으로 화면 밖으로 밀어냄 */
-            transform: translateX(-100%); 
-            box-shadow: 5px 0 15px rgba(0,0,0,0.1);
-        }
+	:global(.show-sidebar) .sidebar {
+		transform: translateX(0);
+	}
 
-        /* 사이드바가 열렸을 때 (showSidebar 스토어 기반 클래스) */
-        :global(.show-sidebar) .sidebar {
-            transform: translateX(0);
-        }
-    }
+	:global(body) {
+		padding-left: 0;
+	}
+}
 
-    /* [중요] 채팅창 가림 방지: 데스크탑에서만 본문을 오른쪽으로 밀기 */
-    :global(body) {
-        transition: padding-left 0.3s ease;
-    }
+/* =========================
+   중앙 정렬 핵심
+========================= */
+.sidebar-main {
+    width: 100%; /* 부모 너비를 꽉 채워야 내부 align-items가 작동합니다 */
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 60px;
+	margin-top: 40%;
+	overflow-y: auto;
+}
 
-    @media (min-width: 1025px) {
-        :global(body:has(.sidebar)) {
-            padding-left: 260px; /* 사이드바 너비만큼 본문을 오른쪽으로 밀어줌 */
-        }
-    }
+/* =========================
+   TOP
+========================= */
+.sidebar-section.top {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.ai-title {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+
+	font-size: 19px;
+	font-weight: 700;
+	color: #111827;
+
+	margin-bottom: 30px;
+}
+
+.title-icon {
+	font-size: 17px;
+	opacity: 0.7;
+}
+
+.badge {
+	display: block;
+	margin: 0 auto;
+
+	font-size: 10px;
+	font-weight: 600;
+
+	color: #e6007e;
+	background: rgba(230,0,126,0.08);
+
+	padding: 6px 14px;
+	border-radius: 999px;
+
+	width: fit-content;
+}
+
+/* =========================
+   MIDDLE
+========================= */
+.sidebar-section.middle {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+
+.sidebar-section.middle::before {
+	content: "";
+	width: 40px;
+	height: 1px;
+	background: rgba(0,0,0,0.06);
+	margin-bottom: 18px;
+}
+
+/* ENGINE BOX */
+.engine-box {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+
+	gap: 16px;
+
+	padding: 20px 16px;
+	border-radius: 16px;
+
+	background: rgba(255,255,255,0.6);
+	backdrop-filter: blur(10px);
+
+	border: 1px solid rgba(0,0,0,0.04);
+
+	box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+}
+
+.engine-title {
+	font-size: 9px;
+	font-weight: 700;
+	color: #9ca3af;
+	letter-spacing: 1.4px;
+}
+
+.engine-logos img {
+	width: 110px;
+	filter: grayscale(20%) brightness(0.95);
+	opacity: 0.9;
+	transition: all 0.2s ease;
+}
+
+.engine-box:hover img {
+	filter: none;
+	opacity: 1;
+}
+
+.engine-meta {
+    font-size: 11px;
+    color: #6b7280;
+    text-align: center;
+    line-height: 1.6;
+    max-width: 210px; /* 180px에서 조금 늘림 */
+}
+
+.engine-meta.sub {
+	font-size: 10px;
+	opacity: 0.85;
+}
+
+/* =========================
+   BOTTOM
+========================= */
+.sidebar-section.bottom {
+    position: absolute;
+    bottom: 123px;
+    left: 0;    /* 왼쪽 끝 고정 */
+    right: 0;   /* 오른쪽 끝 고정 */
+    width: 100%; 
+    display: flex;
+    justify-content: center; /* 내부 콘텐츠를 가로 중앙으로 */
+}
+
+.bottom-content {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 10px;
+}
+
+.data-source {
+	font-size: 11px;
+	color: #6b7280;
+	text-align: center;
+	line-height: 1.5;
+}
+
+.collab-text {
+	font-size: 12px;
+	font-weight: 600;
+	text-align: center;
+	line-height: 1.6;
+}
+
+.exaone {
+	color: #d946ef;
+	font-weight: 600;
+}
+
+.collab-text .sub {
+	display: block;
+	font-size: 11px;
+	color: #6b7280;
+	margin-top: 6px;
+}
+
+.think-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	padding: 6px 14px;
+	border-radius: 999px;
+	font-size: 11px;
+	font-weight: 600;
+	color: #6b7280;
+	background: rgba(0,0,0,0.04);
+	border: 1px solid rgba(0,0,0,0.06);
+	cursor: pointer;
+	transition: all 0.2s ease;
+}
+
+.think-toggle:hover {
+	background: rgba(0,0,0,0.08);
+	color: #111827;
+}
+
 </style>
+
+
+
+
+
+
+

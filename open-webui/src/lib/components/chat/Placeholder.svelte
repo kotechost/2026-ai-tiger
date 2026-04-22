@@ -130,15 +130,15 @@
 											<img src="/tiger.png" class="hero-img"/>
 
 											<h1 class="hero-title">
-												Tiger AI
+												감리교신학대학교 AI
 											</h1>
 
 											<p class="hero-sub">
-												대학교 문서 기반 AI 안내 서비스
+												성서 기반 AI 안내 서비스
 											</p>
 
 											<div class="hero-desc">
-												요람·학사규정 기반 정확한 AI 안내
+												성서 기반 정확한 AI 안내
 											</div>
 
 										</div>
@@ -276,14 +276,10 @@
 				-->
 				<Suggestions
 					suggestionPrompts={[
-						{
-							title: ["스마트자동차 기술을 연구하는 학과는 무엇인가?", "학과 소개를 확인해보세요"],
-							content: " 스마트자동차 기술을 연구하는 학과는 무엇인가?"
-						},
-						{
-							title: ["공연영상학과 교수들 이메일 주소 알려줘", "공연영상학과 교수들 이메일 정보를 알려드립니다"],
-							content: "공연영상학과 교수들 이메일 주소 알려줘"
-						}
+						// {
+						// 	title: ["스마트자동차 기술을 연구하는 학과는 무엇인가?", "학과 소개를 확인해보세요"],
+						// 	content: " 스마트자동차 기술을 연구하는 학과는 무엇인가?"
+						// },
 					]}
 					inputValue={prompt}
 					{onSelect}

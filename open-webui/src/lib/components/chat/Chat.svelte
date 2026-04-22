@@ -2606,6 +2606,7 @@
 						{history}
 						title={$chatTitle}
 						bind:selectedModels
+						bind:params
 						shareEnabled={!!history.currentId}
 						{initNewChat}
 						archiveChatHandler={() => {}}

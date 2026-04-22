@@ -37,6 +37,7 @@ RUN apt-get update && apt-get install -y \
     tesseract-ocr \
     tesseract-ocr-kor \
     tesseract-ocr-eng \
+    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 # pip 업데이트
@@ -47,7 +48,17 @@ WORKDIR /app
 # requirements 먼저 복사 (docker cache 활용)
 COPY requirements.txt .
 
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir --ignore-installed blinker && \
+    pip install --no-cache-dir -r requirements.txt
+
+RUN pip uninstall -y transformers && \
+    pip install git+https://github.com/huggingface/transformers && \
+    pip install --upgrade accelerate
+
+
+# requirements 설치 후에 torch 덮어씌우기
+RUN pip install torch==2.5.1+cu121 torchvision==0.20.1+cu121 \
+    --index-url https://download.pytorch.org/whl/cu121
 
 # playwright
 RUN pip install playwright

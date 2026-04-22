@@ -1,7 +1,9 @@
-docker compose -p llm-system-jsy down
+docker compose down
 
-docker compose -p llm-system-jsy build rag-api-jsy
+rm -rf /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/gpu_log/*
 
-docker compose -p llm-system-jsy up -d
+docker compose build rag-api-bsk
 
-docker logs -f llm-system-jsy-rag-api-jsy-1
+docker compose up -d
+
+docker logs -f rag-api-bsk  > /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/rag_vllm.log

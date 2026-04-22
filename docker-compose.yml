@@ -1,27 +1,45 @@
 version: "3.9"
 
 services:
-
-  rag-api-jsy:
+  rag-api-bsk:
+    container_name: rag-api-bsk
     build: ./rag-server
-    image: rag-api-jsy:latest
+    image: rag-api-bsk:latest
 
     ports:
       - "8002:8000"
 
     volumes:
       - ./vector-data:/data
+      # - /mnt/hdd22t2/solihost/exaone_models:/app/models
+      - /home/solihost/exaone_models:/app/models
+      - ./rag-server/pdfs:/app/pdfs
+      - ./gpu_log:/app/gpu_log
 
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-    # deploy:
-    #   resources:
-    #     reservations:
-    #       devices:
-    #         - driver: nvidia
-    #           device_ids: ["3"]
-    #           capabilities: [gpu]
+    env_file:
+      - .env
+
+    environment:
+      # - MODEL_BACKEND=qwen
+      # - NVIDIA_VISIBLE_DEVICES=0
+      - MODEL_BACKEND=exaone
+      - NVIDIA_VISIBLE_DEVICES=0,1,2,3
+      - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      - GPU_LOG_DIR=/app/gpu_log
+
+    runtime: nvidia
+
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              # device_ids: ["0"]
+              device_ids: ["0","1","2","3"]
+              capabilities: [gpu]
 
     restart: unless-stopped
     logging:
@@ -30,27 +48,61 @@ services:
         max-size: "10m"
         max-file: "3"
 
-
-  openwebui-jsy:
+  openwebui-bsk:
     build:
       context: ./open-webui
       dockerfile: Dockerfile
+    container_name: openwebui-bsk
 
-    image: opnwebui-jsy:latest
+    image: opnwebui-bsk:latest
 
     ports:
       - "3002:8080"
 
     environment:
-      - OPENAI_API_BASE_URL=http://rag-api-jsy:8000/v1
+      - OPENAI_API_BASE_URL=http://rag-api-bsk:8000/v1
       - OPENAI_API_KEY=test
       - WEBUI_AUTH=False
 
     volumes:
-      - openwebui-data-jsy:/app/backend/data
+      - openwebui-data-bsk:/app/backend/data
       - ./open-webui/pdfs:/app/backend/open_webui/static/pdf:ro
+
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
     depends_on:
-      - rag-api-jsy
+      - rag-api-bsk
+
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  postgresql-bsk:
+    image: postgres:16
+    container_name: postgresql-bsk
+
+    ports:
+      - "5432:5432"
+
+    environment:
+      POSTGRES_DB: bible
+      POSTGRES_USER: solihost
+      POSTGRES_PASSWORD: "soli1234!"
+
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+      - ./postgres/init/01-init-bible.sql:/docker-entrypoint-initdb.d/01-init-bible.sql:ro
+      - ./postgres/init/init.sql:/docker-entrypoint-initdb.d/02-init-tables.sql:ro
+
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U solihost -d bible"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
     restart: unless-stopped
     logging:
@@ -60,4 +112,4 @@ services:
         max-file: "3"
 
 volumes:
-  openwebui-data-jsy:
+  openwebui-data-bsk:

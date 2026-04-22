@@ -5,9 +5,9 @@ import numpy as np
 
 dimensionNum = 1024
 
-# ⭐ 문서 업로드 전용 DB
-indexFile = "/data/doc_faiss_e5_pars_qwen_vl_hybrid.index"
-docsFile = "/data/doc_docs_e5_pars_qwen_vl_hybrid.pkl"
+# 문서 업로드 전용 DB
+indexFile = "/data/faiss_pdf.index"
+docsFile = "/data/docs_pdf.pkl"
 
 
 if os.path.exists(indexFile):
@@ -31,8 +31,8 @@ else:
 
 
 def add_vector_doc(vectorArr, textStr, fileNameStr,
-                       pageNum=None, chunkIndex=0, sourceType="file",
-                       department="", college=""):
+                   pageNum=None, chunkIndex=0, sourceType="file",
+                   metadata=None):  # dict로 유연하게
 
 	vectorArr = np.array(vectorArr).astype("float32")
 
@@ -44,12 +44,10 @@ def add_vector_doc(vectorArr, textStr, fileNameStr,
 		"text": textStr,
 		"file": fileNameStr,
 		"title": fileNameStr,
-		"source": fileNameStr,
 		"page": pageNum,
 		"chunk_index": chunkIndex,
 		"source_type": sourceType,
-		"department": department,
-		"college": college,
+		**(metadata or {}),
 	})
 
 	print("Document Vector 저장:", len(docsListDoc), flush=True)
@@ -64,3 +62,34 @@ def save_index_doc():
 		pickle.dump(docsListDoc, fileObj)
 
 	print("Document VectorDB 저장 완료", flush=True)
+
+def reset_index_doc():
+    global indexObjDoc, docsListDoc
+    if os.path.exists(indexFile):
+        os.remove(indexFile)
+    if os.path.exists(docsFile):
+        os.remove(docsFile)
+    baseIndex = faiss.IndexFlatIP(dimensionNum)
+    indexObjDoc = faiss.IndexIDMap(baseIndex)
+    docsListDoc = []
+    print("Document VectorDB 초기화 완료", flush=True)
+
+def remove_by_file(fileNameStr):
+    """특정 파일의 벡터를 인덱스와 docsList에서 삭제"""
+    ids_to_remove = [
+        idx for idx, doc in enumerate(docsListDoc)
+        if doc is not None and doc.get("file") == fileNameStr
+    ]
+    if not ids_to_remove:
+        print(f"[{fileNameStr}] 삭제할 벡터 없음", flush=True)
+        return
+
+    # FAISS 인덱스에서 제거
+    indexObjDoc.remove_ids(np.array(ids_to_remove, dtype=np.int64))
+
+    # docsList는 인덱스 순서 유지 필요 (docId = list index)
+    # → 해당 위치를 None으로 마킹 (삭제하면 뒤쪽 ID 전부 틀어짐)
+    for idx in ids_to_remove:
+        docsListDoc[idx] = None
+
+    print(f"[{fileNameStr}] {len(ids_to_remove)}건 삭제 완료", flush=True)

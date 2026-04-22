@@ -3,11 +3,11 @@ uvicorn
 gunicorn
 requests
 beautifulsoup4
-sentence-transformers
+sentence-transformers==2.7.0
+tokenizers==0.15.2
 faiss-cpu
 numpy==1.26.4
 playwright
-torch
 python-multipart
 pymupdf
 pdfplumber
@@ -22,3 +22,4 @@ paddleocr==2.7.3
 paddlepaddle==2.6.2
 
 rapidfuzz==3.9.6
+asyncpg

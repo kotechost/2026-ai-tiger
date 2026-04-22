@@ -1,26 +1,39 @@
-from rag.vector_db import docsList
+from state import state
+
+VAGUE_KEYWORDS = [
+    "해당", "그거", "이거", "그것", "이것", "거기", "여기",
+    "그 성경", "이 성경", "해당 성경", "그 구절", "이 구절",
+    "찾아줘", "알려줘", "더 알려줘", "자세히", "그게 뭐야",
+]
 
 
-def rewrite_query(queryStr):
+async def rewrite_query(question: str, history: str, url: str, model: str) -> str:
+    has_vague = any(kw in question for kw in VAGUE_KEYWORDS)
+    if not (has_vague and history.strip()):
+        return question
 
-	print("===== Query Rewrite 시작 =====", flush=True)
+    rewrite_prompt = f"""이전 대화를 참고해서 아래 질문을 성경 검색에 적합하게 구체적으로 한 문장으로 재작성해줘. 재작성한 문장만 출력해.
 
-	queryClean = queryStr.replace(" ", "").lower()
+[이전 대화]
+{history}
 
-	# ------------------------------
-	# 진천 지사 관련 질문
-	# ------------------------------
-	if (
-		"진천지사" in queryClean
-		or "충북지사" in queryClean
-		or "지사위치" in queryClean
-		or "jincheon" in queryClean
-	):
+[질문]
+{question}
 
-		print("Query Rewrite: 진천 지사 질문 확장", flush=True)
+재작성:"""
 
-		return {
-			"type": "query",
-			"data": "코테크시스템 진천 지사 위치 주소 오시는길 연락처 충북 진천 코테크 지사"
-		}
-
+    payload = {
+        "model": model,
+        "messages": [{"role": "user", "content": rewrite_prompt}],
+        "stream": False,
+        "temperature": 0.1,
+        "max_tokens": 100,
+    }
+    try:
+        resp = await state.client.post(url, json=payload, timeout=10)
+        rewritten = resp.json()["choices"][0]["message"]["content"].strip()
+        print(f"[쿼리 재작성] {question} → {rewritten}", flush=True)
+        return rewritten
+    except Exception as e:
+        print(f"[쿼리 재작성 실패] {e}", flush=True)
+        return question
