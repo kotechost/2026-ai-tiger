@@ -78,7 +78,6 @@ llm-system-bsk/
 │   │   ├── bible_vector_stitle.py   # 성경 소제목 단위 벡터화
 │   │   └── bible_vector_doc.py      # PDF 문서 업로드 → 벡터화
 │   ├── crawler/               # 웹 크롤러
-│   ├── data/                  # 크롤링/처리 데이터 덤프
 │   ├── db/                    # DB 쿼리 레이어 (PostgreSQL)
 │   │   ├── config/                  # DB pool 설정
 │   │   └── bible_vector_query.py    # 성경 집계 쿼리
