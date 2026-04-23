@@ -10,7 +10,7 @@ from sentence_transformers import CrossEncoder
 from difflib import SequenceMatcher   # 문자열 유사도 비교
 from urllib.parse import quote
 
-rerankModel = CrossEncoder("BAAI/bge-reranker-v2-m3", device="cuda")
+rerankModel = CrossEncoder("BAAI/bge-reranker-v2-m3", device="cuda", max_length=1024)
 
 def get_source_url(docObj):
     """DB 종류에 따라 출처 URL 생성"""
@@ -45,7 +45,7 @@ def search_context(queryStr):
 	# ------------------------------
 	candidateList = []
 
-	# 3개 DB에서 각각 40개씩 검색
+	# DB에서 각각 20개씩 검색
 	db_targets = [
 		# ("bible",        vdb_bible.indexObj,  vdb_bible.docsList),
 		("bible_stitle", vdb_stitle.indexObj, vdb_stitle.docsList),
@@ -57,7 +57,7 @@ def search_context(queryStr):
 			print(f"[{db_name}] 인덱스 비어있음 → 스킵", flush=True)
 			continue
 
-		distances, indices = indexObj.search(queryVec, 40)
+		distances, indices = indexObj.search(queryVec, 20)
 		print(f"[{db_name}] 검색 결과:", indices, flush=True)
 
 		for idxNum, idx in enumerate(indices[0]):
@@ -83,9 +83,9 @@ def search_context(queryStr):
 		print("===== RAG 검색 종료 =====", flush=True)
 		return "", [], []
 
-	# FAISS 점수 기준 상위 40개로 추림
+	# FAISS 점수 기준 상위 10개로 추림
 	candidateList.sort(key=lambda d: d["_score"], reverse=True)
-	candidateList = candidateList[:40]
+	candidateList = candidateList[:10]
 
 	print("총 FAISS 후보 개수:", len(candidateList), flush=True)
 
