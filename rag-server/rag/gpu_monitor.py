@@ -31,9 +31,11 @@ class GpuMonitor:
 		self._stop = asyncio.Event()
 		self._log_file = None
 
-		os.makedirs(GPU_LOG_DIR, exist_ok=True)
-		ts = datetime.now().strftime("%Y%m%d_%H%M%S_%f")[:-3]
-		self.log_path = os.path.join(GPU_LOG_DIR, f"{ts}.log")
+		now = datetime.now()
+		date_dir = os.path.join(GPU_LOG_DIR, now.strftime("%Y%m%d"))
+		os.makedirs(date_dir, exist_ok=True)
+		ts = now.strftime("%Y%m%d_%H%M%S_%f")[:-3]
+		self.log_path = os.path.join(date_dir, f"{ts}.log")
 
 	def _sample_once(self) -> list[tuple[int, int, int, float, float, float]]:
 		"""

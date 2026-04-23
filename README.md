@@ -79,9 +79,12 @@ llm-system-bsk/
 │   │   └── bible_vector_doc.py      # PDF 문서 업로드 → 벡터화
 │   ├── crawler/               # 웹 크롤러
 │   ├── db/                    # DB 쿼리 레이어 (PostgreSQL)
-│   │   ├── config/                  # DB pool 설정
-│   │   └── bible_crawl_query.py    # 크롤링 성경정보 저장 
-│   │   └── bible_info_query.py     # 크롤링 성경정보 대상(Target) 저장
+│   │   ├── config/                  # DB 연결·풀 설정
+│   │   │   ├── connection.py
+│   │   │   └── database.py
+│   │   ├── init_table/              # 테이블 초기화 스크립트
+│   │   ├── bible_crawl_query.py     # 크롤링 성경정보 저장
+│   │   ├── bible_info_query.py      # 크롤링 성경정보 대상(Target) 저장
 │   │   └── bible_vector_query.py    # 성경 집계 쿼리
 │   ├── pdfs/                  # PDF 원본 (정적 마운트 /pdfs)
 │   ├── rag/                   # RAG 핵심 로직
@@ -93,10 +96,10 @@ llm-system-bsk/
 │   │   ├── vector_db_stitle.py      # 성경 소제목 FAISS 인덱스
 │   │   ├── vector_db_doc.py         # PDF 문서 FAISS 인덱스
 │   │   ├── search.py                # RAG 검색 + rerank + 출처 매칭
-│   │   ├── search_doc.py            # 문서 전용 검색
 │   │   ├── rewrite_query.py         # LLM 기반 질문 재작성
-│   │   └── gpu_monitor.py           # GPU 사용률 수집
+│   │   └── gpu_monitor.py           # GPU 사용률 수집 (날짜별 폴더 저장)
 │   ├── main.py                # FastAPI 엔트리포인트
+│   ├── state.py               # 전역 상태 (세마포어, httpx 클라이언트, DB 풀)
 │   ├── Dockerfile
 │   └── requirements.txt
 │
@@ -104,9 +107,22 @@ llm-system-bsk/
 │   ├── init/                  # DB 초기화 SQL 스크립트
 │   └── data/                  # DB 데이터 (볼륨 마운트)
 │
+├── vllm-package/              # vLLM 실행 패키지 사본 (실 운영본은 /home/solihost/vllm-package)
+├── table-data-backup/         # PostgreSQL 테이블 백업 덤프
 ├── vector-data/               # FAISS 인덱스·덤프 저장 경로
+│
+├── gpu_log/                   # GPU 사용률 로그 (날짜별, 14일 자동 정리)
+│   └── YYYYMMDD/                    # 일자별 폴더
+│       └── YYYYMMDD_HHMMSS_fff.log  # 요청 단위 GPU 모니터 로그
+├── rag_log/                   # RAG API 컨테이너 stdout 로그 (날짜별, 14일 자동 정리)
+│   └── YYYYMMDD/
+│       └── YYYYMMDD_HH.log          # 시간 단위 누적 로그
+│
 ├── docker-compose.yml
-└── start.sh                   # 빌드·재시작 스크립트
+├── docker-cmd.txt             # 자주 쓰는 docker 커맨드 메모
+├── start.sh                   # 빌드·재시작 + 14일 초과 로그 정리
+├── log_start.sh               # start.sh 실행 + rag_log 날짜별 tee 저장
+└── restart_ui_sh              # OpenWebUI 컨테이너만 재시작
 ```
 
 </details>
