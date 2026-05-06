@@ -35,4 +35,5 @@ gpu_log
 rag_log
 
 # backup
-backup
+backup/postgresql
+backup/vector-data

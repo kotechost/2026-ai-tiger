@@ -1,0 +1,46 @@
+[2026-04-29 14:20:36] ===== Backup start (2026-04-29) =====
+[2026-04-29 14:20:39] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-04-29
+[2026-04-29 14:20:39] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-04-29/bible_service.bible_book_info.sql
+[2026-04-29 14:20:39] ===== Backup end =====
+[2026-04-29 14:25:02] ===== Backup start (2026-04-29) =====
+[2026-04-29 14:25:05] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-04-29
+[2026-04-29 14:25:06] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-04-29/bible_service.bible_book_info.sql
+[2026-04-29 14:25:06] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-04-29/bible_service.bible_crawl_content.sql
+[2026-04-29 14:25:06] ===== Backup end =====
+[2026-04-30 03:00:01] ===== Backup start (2026-04-30) =====
+[2026-04-30 03:00:01] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-04-30
+[2026-04-30 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-04-30/bible_service.bible_book_info.sql
+[2026-04-30 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-04-30/bible_service.bible_crawl_content.sql
+[2026-04-30 03:00:02] ===== Backup end =====
+[2026-05-01 03:00:01] ===== Backup start (2026-05-01) =====
+[2026-05-01 03:00:02] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-05-01
+[2026-05-01 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-01/bible_service.bible_book_info.sql
+[2026-05-01 03:00:03] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-01/bible_service.bible_crawl_content.sql
+[2026-05-01 03:00:03] ===== Backup end =====
+[2026-05-02 03:00:01] ===== Backup start (2026-05-02) =====
+[2026-05-02 03:00:02] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-05-02
+[2026-05-02 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-02/bible_service.bible_book_info.sql
+[2026-05-02 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-02/bible_service.bible_crawl_content.sql
+[2026-05-02 03:00:02] ===== Backup end =====
+[2026-05-03 03:00:01] ===== Backup start (2026-05-03) =====
+[2026-05-03 03:00:01] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-05-03
+[2026-05-03 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-03/bible_service.bible_book_info.sql
+[2026-05-03 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-03/bible_service.bible_crawl_content.sql
+[2026-05-03 03:00:02] ===== Backup end =====
+[2026-05-04 03:00:01] ===== Backup start (2026-05-04) =====
+[2026-05-04 03:00:02] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-05-04
+[2026-05-04 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-04/bible_service.bible_book_info.sql
+[2026-05-04 03:00:03] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-04/bible_service.bible_crawl_content.sql
+[2026-05-04 03:00:03] ===== Backup end =====
+[2026-05-05 03:00:01] ===== Backup start (2026-05-05) =====
+[2026-05-05 03:00:02] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-05-05
+[2026-05-05 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-05/bible_service.bible_book_info.sql
+[2026-05-05 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-05/bible_service.bible_crawl_content.sql
+[2026-05-05 03:00:03] ===== Backup end =====
+[2026-05-06 03:00:01] ===== Backup start (2026-05-06) =====
+[2026-05-06 03:00:01] vector-data backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-05-06
+[2026-05-06 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-06/bible_service.bible_book_info.sql
+[2026-05-06 03:00:02] postgres backup OK -> /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-05-06/bible_service.bible_crawl_content.sql
+[2026-05-06 03:00:02] rotate: removing /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/vector-data/2026-04-29
+[2026-05-06 03:00:02] rotate: removing /mnt/hdd22t2/solihost/llm-system/llm-system-bsk/backup/postgresql/2026-04-29
+[2026-05-06 03:00:02] ===== Backup end =====
