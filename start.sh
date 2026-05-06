@@ -19,4 +19,4 @@ docker compose build rag-api-bsk
 
 docker compose up -d
 
-docker logs -f rag-api-bsk
+# Note: log_start.sh handles streaming docker logs into rag_log files.

@@ -33,3 +33,6 @@ postgres
 #log
 gpu_log
 rag_log
+
+# backup
+backup

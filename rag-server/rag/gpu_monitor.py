@@ -1,6 +1,7 @@
 import asyncio
 import os
 import subprocess
+import time
 from collections import defaultdict
 from datetime import datetime
 
@@ -23,6 +24,7 @@ class GpuMonitor:
 	def __init__(self, interval: float = 1.0, question: str = ""):
 		self.interval = interval
 		self.question = question
+		self.response: str = ""
 		# per-GPU 누적: {idx: {"sm": [...], "mem": [...], "pwr_pct": [...], "pwr_w": [...]}}
 		self.samples: dict[int, dict[str, list[float]]] = defaultdict(
 			lambda: {"sm": [], "mem": [], "pwr_pct": [], "pwr_w": []}
@@ -31,11 +33,24 @@ class GpuMonitor:
 		self._stop = asyncio.Event()
 		self._log_file = None
 
+		# 타이밍 계측 (ms 단위 요약용)
+		self.t_request_start: float = time.perf_counter()  # 요청 수신 시점 기준
+		self.t_llm_start: float | None = None              # 백엔드(vLLM/Ollama) 호출 직전
+		self.t_first_token: float | None = None            # 첫 스트리밍 토큰 수신
+		self.t_end: float | None = None                    # 응답 완료 (stop 시)
+
 		now = datetime.now()
-		date_dir = os.path.join(GPU_LOG_DIR, now.strftime("%Y%m%d"))
-		os.makedirs(date_dir, exist_ok=True)
+		os.makedirs(GPU_LOG_DIR, exist_ok=True)
 		ts = now.strftime("%Y%m%d_%H%M%S_%f")[:-3]
-		self.log_path = os.path.join(date_dir, f"{ts}.log")
+		self.log_path = os.path.join(GPU_LOG_DIR, f"{ts}.log")
+
+	def mark_llm_start(self):
+		if self.t_llm_start is None:
+			self.t_llm_start = time.perf_counter()
+
+	def mark_first_token(self):
+		if self.t_first_token is None:
+			self.t_first_token = time.perf_counter()
 
 	def _sample_once(self) -> list[tuple[int, int, int, float, float, float]]:
 		"""
@@ -167,7 +182,25 @@ class GpuMonitor:
 		if not self._log_file:
 			return
 		f = self._log_file
+		if self.t_end is None:
+			self.t_end = time.perf_counter()
 		f.write(f"# end: {datetime.now().isoformat()}\n")
+
+		# ===== 응답 속도 (ms) =====
+		def _ms(a: float | None, b: float | None) -> str:
+			if a is None or b is None:
+				return "N/A"
+			return f"{(b - a) * 1000:.0f} ms"
+
+		total_ms = _ms(self.t_request_start, self.t_end)
+		ttft_ms = _ms(self.t_request_start, self.t_first_token)
+		llm_total_ms = _ms(self.t_llm_start, self.t_end)
+
+		f.write("# ===== LATENCY =====\n")
+		f.write(f"# 처음 응답속도 (TTFT, 요청 수신 → 첫 토큰): {ttft_ms}\n")
+		f.write(f"# LLM 요청~응답 속도 (LLM 호출 → 응답 완료):  {llm_total_ms}\n")
+		f.write(f"# 전체 응답속도 (요청 수신 → 응답 완료):      {total_ms}\n")
+
 		f.write("# ===== SUMMARY =====\n")
 
 		overall = {"sm": [], "mem": [], "pwr_pct": [], "pwr_w": []}
@@ -251,6 +284,16 @@ class GpuMonitor:
 				)
 		else:
 			f.write("# OVERALL: no samples collected\n")
+
+		if self.response:
+			f.write("\n\n\n")
+			f.write("# ===== LLM RESPONSE =====\n")
+			f.write(self.response)
+			if not self.response.endswith("\n"):
+				f.write("\n")
+
+	def set_response(self, text: str):
+		self.response = text or ""
 
 	def start(self):
 		if self._task is not None:

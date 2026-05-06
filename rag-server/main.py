@@ -158,7 +158,7 @@ async def chat_completions(req: ChatRequest):
 	# user_question = await rewrite_query(user_question, summary, VLLM_URL, VLLM_MODEL)
 
 	print("\n" + "=" * 150, flush=True)
-	print("\n" + "=" * 150, flush=True)
+	print("=" * 150, flush=True)
 	print(f"🔎 [NEW SEARCH {time.strftime('%Y-%m-%d %H:%M:%S')}] {user_question}", flush=True)
 	print("=" * 150, flush=True)
 	print("=" * 150, flush=True)
@@ -193,8 +193,8 @@ async def chat_completions(req: ChatRequest):
 	# 프롬프트 구성 — 검색 결과가 있을 때만 성경 구절 섹션 포함
 	#    context 없으면 rag_section = "" → LLM이 학습 데이터로만 답변
 	rag_section = ""
-	if context:
-		rag_section = f"[참고 성경 구절]\n{context}\n"
+	# if context:
+	# 	rag_section = f"[참고 성경 구절]\n{context}\n"
 		# 전후 문맥 추가
 		# if surrounding_context:
 		# 	rag_section += f"\n[전후 문맥]\n{surrounding_context}\n"
@@ -271,6 +271,7 @@ async def chat_completions(req: ChatRequest):
 		src_indices = None       # 파싱된 번호 리스트
 		t_stream = time.time()
 		first_token = True
+		gpu_monitor.mark_llm_start()
 		try:
 			async with state.client.stream("POST", target_url, json=payload) as response:
 				if response.status_code != 200:
@@ -363,6 +364,7 @@ async def chat_completions(req: ChatRequest):
 
 					if content:
 						if first_token:
+							gpu_monitor.mark_first_token()
 							print(f"[PERF] 첫 토큰까지: {time.time()-t_stream:.3f}s", flush=True)
 							first_token = False
 						emit_buf = ""  # 사용자에게 보낼 조각
@@ -401,6 +403,7 @@ async def chat_completions(req: ChatRequest):
 			if acquired:
 				state.semaphore.release()
 			metrics.finish()
+			gpu_monitor.set_response("".join(full_content))
 			await gpu_monitor.stop()
 			print_eval(metrics)
 

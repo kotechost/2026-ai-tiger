@@ -1,6 +1,6 @@
 import asyncio
 
-MAX_CONCURRENT_REQUESTS = 4
+MAX_CONCURRENT_REQUESTS = 24
 
 
 class ServerState:
