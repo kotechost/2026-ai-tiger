@@ -37,3 +37,4 @@ rag_log
 # backup
 backup/postgresql
 backup/vector-data
+backup/backup.log
